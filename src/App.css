@@ -5,11 +5,16 @@
 
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Montserrat',  Arial, Helvetica, sans-serif !important;
+}
+
+a {
+  color: grey !important;
+  text-decoration: none !important;
 }
 
 .content  {
-  margin-left: 2%;
+  padding-left: 2%;
 }
 
 .navbar {
@@ -69,7 +74,9 @@ body {
 
 .time  {
   font-size: 15rem;
+  font-weight: 800;
   text-align: center;
+  padding: 5%;
 }
 
 .col-sm {
@@ -80,6 +87,55 @@ body {
 .right-text {
   text-align: right;
 }
+
+.black-bg {
+  background-color: #333333;
+  color: white;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.purple-bg  {
+  background-color: #7755AA;
+  color: white;
+  overflow: hidden;
+}
+
+.purple-bg .row .container  {
+  text-align: center;
+  font-size: 3rem;
+}
+
+.padding  {
+  padding: 5%;
+}
+
+.text-small {
+  font-size: 0.9rem;
+}
+
+a {
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+a:hover, a:focus {
+  text-decoration: none;
+}
+
+.form-control {
+  background: #212529;
+  border-color: #545454;
+}
+
+.form-control:focus {
+  background: #212529;
+}
+
+footer {
+  background: #212529;
+}
+/* Footer END */
 
 /* Media queries START */
 
@@ -97,6 +153,9 @@ body {
   }
   .topnav input[type=text] {
     border: 1px solid #ccc;  
+  }
+  .time {
+    font-size: 5rem;
   }
 }
 /* Media queries END */
