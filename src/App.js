@@ -5,8 +5,10 @@ import  axios from  "axios";
 import React from 'react';
 import  { ToastContainer, toast } from  'react-toastify';
 import  'react-toastify/dist/ReactToastify.css';
+import { Last } from 'react-bootstrap/esm/PageItem';
 
 const baseURL = "https://ipgeolocation.abstractapi.com/v1/?api_key=9fc3081c7a24494daf1593b7037a4ca1";
+const SunriseSunsetAPI  = "https://api.sunrise-sunset.org/json";
 
 class App extends React.Component {
 
@@ -20,7 +22,9 @@ class App extends React.Component {
       data  : {},
       time  : null,
       error : null,
-      date  : null
+      date  : null,
+      sunriseData : {},
+      flag  : null
     };
 
   }
@@ -46,6 +50,12 @@ class App extends React.Component {
       // city-> city of which the time is calculated
       // offset-> offset of the city from the GMT.
       this.calcTime(this.state.data.city, this.state.data.timezone.gmt_offset);
+
+      // get the sunsrise & sunset
+      this.getSunriseSunset(this.state.data.latitude, this.state.data.longitude);
+
+      // set the flag
+      this.setState({ flag  : this.state.data.flag.svg  });
 
     }).catch(error  =>  {
       console.log('error', error);
@@ -80,6 +90,23 @@ class App extends React.Component {
 
     this.setState({date : new Date(nd).toDateString()});
 
+  }
+
+  getSunriseSunset(lat, lng)  {
+    console.log('SUnrise/Sunset!');
+    console.log('lng', lng);
+    console.log('lat' , lat);
+
+    axios.get(SunriseSunsetAPI + '?lat='  + lat + '&lng=' +lng).then((response) =>  {
+      console.log(response);
+
+      this.setState({sunriseData  : response.data.results});
+
+      console.log(this.state.sunriseData);
+
+    }).catch((error)  =>  {
+      toast(error.message);
+    });
   }
 
 
@@ -151,8 +178,8 @@ class App extends React.Component {
               <div className="container">
                 {this.state.date}
                 <br />
-                <a href={url}>Day of German Unity</a>
-                <p>Sun : Sunrise: 06:20 Sunset 18:11 <a href={url}>More Info</a></p>
+                <a> <img width="5%" src={this.state.flag} />  </a>
+                <p>Sun : Sunrise: {this.state.sunriseData.sunrise} Sunset {this.state.sunriseData.sunset} <a href={url}>More Info</a></p>
                 <div className="row">
   
                   <div className="col-sm">
