@@ -9,9 +9,12 @@ import { Last } from 'react-bootstrap/esm/PageItem';
 
 const baseURL = "https://ipgeolocation.abstractapi.com/v1/?api_key=9fc3081c7a24494daf1593b7037a4ca1";
 const SunriseSunsetAPI  = "https://api.sunrise-sunset.org/json";
+const countryStateCityAPI = 'https://api.countrystatecity.in/v1/';
+const timeZoneAPI         = 'https://timezone.abstractapi.com/v1/current_time?api_key=8795447fd6f644cfb22ab1294911e749';
 
 class App extends React.Component {
   date  = new Date();
+  states  = [];
 
   // like constructor in Angular
   constructor(props) {
@@ -24,7 +27,8 @@ class App extends React.Component {
       error : null,
       date  : null,
       sunriseData : {},
-      flag  : null
+      flag  : null,
+      states  : []
     };
 
   }
@@ -36,6 +40,9 @@ class App extends React.Component {
         data  : response.data
       });
 
+      console.log(response.data);
+
+      this.getState(response.data);
       this.setState(  { time  : this.state.data.timezone.current_time });
       this.calcTime(this.state.data.city, this.state.data.timezone.gmt_offset);
       this.getSunriseSunset(this.state.data.latitude, this.state.data.longitude);
@@ -50,23 +57,15 @@ class App extends React.Component {
   }
 
   calcTime(city,  offset)  {
-
     let  d  = new Date();
-
     let utc = d.getTime() + (d.getTimezoneOffset()  * 60000);
-
     let nd  = new Date(utc  + (3600000  * offset));
-    console.log('nd', nd);
 
     this.date = nd;
-    console.log(this.date);
-
     this.currentTime();
-
   }
 
   currentTime() {
-    // console.log(this.date);
 
     let date  = new Date();
     
@@ -79,8 +78,8 @@ class App extends React.Component {
     seconds = (seconds  < 10) ? "0" + seconds : seconds;
 
     let time  = hours + ":" + minutes + ":" + seconds;
-    // console.log(time);
 
+    // This will tick the clock in 1 seconds
     this.setState({ time  : time  });
     let t = setTimeout(() => {
       this.currentTime();
@@ -96,6 +95,74 @@ class App extends React.Component {
     }).catch((error)  =>  {
       toast(error.message);
     });
+  }
+
+  getState(data)  {
+    console.log('data'  , data);
+    console.log('country_code'  , data.country_code);
+
+    console.log(countryStateCityAPI);
+
+    let config  = {
+      method  : 'GET',
+      url : countryStateCityAPI + `countries/` + data.country_code + `/states`,
+      headers : { 
+        "X-CSCAPI-KEY" :  "dXIyRERERVd3bTBBc0tDalBzbXNXWnRUcDQ2enRpNXJQblNFcmF1cw==" 
+      },
+      redirect  : 'follow'
+    }
+
+    axios(config)
+      .then((response)  =>  {
+        if(response.status  ==  200)  {
+          let state = [];
+
+          // set an in terval of 2 seconds due to API limitation.
+          // this.getTimeByState(response.data[i], i,  data.country_code);
+          
+          
+        }
+      })
+      .catch((error)  =>  {
+        toast(error.message);
+      })
+  }
+
+
+
+  getTimeByState(data, i, country_code)  {
+    let state = [];
+
+    console.log(data);
+    console.log(i);
+    console.log(country_code);
+
+    // get the time of the state  & push it into state array
+    let config  = {
+      method  : 'GET',
+      url : timeZoneAPI + `&location=` + data.name + ',' + country_code,
+      redirect  : 'follow',
+    };
+
+    
+
+    // axios(config)
+    //   .then((response)  =>  {
+    //     if(response.status  ==  200)  {
+    //       console.log(response);
+    //       console.log(response.datetime.toString().split(" "))
+    //     }
+    //   })
+    //   .catch((error)  =>  {
+    //     toast(error.message);
+    //   })
+
+    
+    // state.push( {'name' : data.data[i]['name']} );
+
+    // in the end when all data is pushed
+    // this.setState({ states : state });
+
   }
 
 
@@ -167,43 +234,19 @@ class App extends React.Component {
                 <a> <img width="5%" src={this.state.flag} />  </a>
                 <p>Sun : Sunrise: {this.state.sunriseData.sunrise} Sunset {this.state.sunriseData.sunset} <a href={url}>More Info</a></p>
                 <div className="row">
-  
-                  <div className="col-sm">
+                  {this.state.states.map((singleState)  =>  
+                    <div className="col-sm">
+                      {singleState.name}
+                    </div>
+                  )}
+
+                  {/* For reference */}
+
+                  {/* <div className="col-sm">
                     One of three columns
                     One of three columns
                     One of three columns
-                  </div>
-  
-                  <div className="col-sm">
-                    One of three columns
-                    One of three columns
-                    One of three columns
-                  </div>
-  
-                  <div className="col-sm">
-                    One of three columns
-                    One of three columns
-                    One of three columns
-                  </div>
-  
-                  <div className="col-sm">
-                    One of three columns
-                    One of three columns
-                    One of three columns
-                  </div>
-  
-                  <div className="col-sm">
-                    One of three columns
-                    One of three columns
-                    One of three columns
-                  </div>
-  
-                  <div className="col-sm">
-                    One of three columns
-                    One of three columns
-                    One of three columns
-                  </div>
-  
+                  </div> */}
                 </div>
               </div>
               <br/>
@@ -519,7 +562,7 @@ class App extends React.Component {
                   </div>
   
                 </div>
-              </div>
+        </div>
         {/* Citites END */}
   
         <br />
@@ -536,7 +579,7 @@ class App extends React.Component {
                 </p>
               </div>
             </div>
-            </div>
+        </div>
         {/* Quote Section END */}
   
         {/* Footer START */}
