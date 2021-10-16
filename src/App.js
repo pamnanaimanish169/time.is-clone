@@ -11,10 +11,10 @@ const baseURL = "https://ipgeolocation.abstractapi.com/v1/?api_key=9fc3081c7a244
 const SunriseSunsetAPI  = "https://api.sunrise-sunset.org/json";
 
 class App extends React.Component {
+  date  = new Date();
 
   // like constructor in Angular
   constructor(props) {
-    console.log('constructor');
 
     super(props);
 
@@ -31,37 +31,18 @@ class App extends React.Component {
 
   // like ngOnInit in Angular
   componentDidMount() {
-    console.log('component did mount');
     axios.get(baseURL).then((response)  =>  {
-      console.log(response);
-
       this.setState({
         data  : response.data
       });
 
-      console.log(this.state.data);
-
-      console.log('time', this.state.data.timezone.current_time);
-
       this.setState(  { time  : this.state.data.timezone.current_time });
-
-      // Calculate the time based on the timezone
-      // calcTime(city, offset);
-      // city-> city of which the time is calculated
-      // offset-> offset of the city from the GMT.
       this.calcTime(this.state.data.city, this.state.data.timezone.gmt_offset);
-
-      // get the sunsrise & sunset
       this.getSunriseSunset(this.state.data.latitude, this.state.data.longitude);
-
-      // set the flag
       this.setState({ flag  : this.state.data.flag.svg  });
 
     }).catch(error  =>  {
-      console.log('error', error);
-
       this.setState(  { error : error.message });
-
       toast.error(error.message);
     },[]);
 
@@ -69,40 +50,48 @@ class App extends React.Component {
   }
 
   calcTime(city,  offset)  {
-    console.log('city', city);
-    console.log('offset', offset);
 
-    // Create date object for current location
     let  d  = new Date();
 
-    // convert  to  msec
-    // subtract local time offset
-    // get  UTC time  in  msec
     let utc = d.getTime() + (d.getTimezoneOffset()  * 60000);
-    console.log('utc',  utc);
 
-    // create new Date  object  for different city
-    // using supplied offset
     let nd  = new Date(utc  + (3600000  * offset));
+    console.log('nd', nd);
 
-    // return time as a string;
-    console.log('Time is ', new Date(nd));
+    this.date = nd;
+    console.log(this.date);
 
-    this.setState({date : new Date(nd).toDateString()});
+    this.currentTime();
+
+  }
+
+  currentTime() {
+    // console.log(this.date);
+
+    let date  = new Date();
+    
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+
+    hours = (hours  < 10) ? "0" + hours : hours;
+    minutes = (minutes  < 10) ? "0" + minutes : minutes;
+    seconds = (seconds  < 10) ? "0" + seconds : seconds;
+
+    let time  = hours + ":" + minutes + ":" + seconds;
+    // console.log(time);
+
+    this.setState({ time  : time  });
+    let t = setTimeout(() => {
+      this.currentTime();
+    }, 1000);
 
   }
 
   getSunriseSunset(lat, lng)  {
-    console.log('SUnrise/Sunset!');
-    console.log('lng', lng);
-    console.log('lat' , lat);
 
     axios.get(SunriseSunsetAPI + '?lat='  + lat + '&lng=' +lng).then((response) =>  {
-      console.log(response);
-
       this.setState({sunriseData  : response.data.results});
-
-      console.log(this.state.sunriseData);
 
     }).catch((error)  =>  {
       toast(error.message);
@@ -112,10 +101,7 @@ class App extends React.Component {
 
   render()  {
     
-    console.group('render');
-
     let url = "";
-
 
     return (
       <div>
